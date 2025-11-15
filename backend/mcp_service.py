@@ -153,6 +153,113 @@ def register_checkpoint_tools(local_mcp_instance):
 
     @local_mcp_instance.tool(
         annotations={
+            "readOnlyHint": True,
+            "idempotentHint": True
+        }
+    )
+    @with_sentry_tracing("get_answer_history")
+    def get_answer_history(
+        topic: Literal[*TOPICS]
+    ) -> str:
+        """
+        Retrieve the complete answer history for a specific topic, sorted chronologically.
+
+        This function provides a chronological view of all learning evaluations for a given topic,
+        allowing learners and AI agents to track knowledge progression over time and identify
+        patterns in learning development.
+
+        For each evaluation, the history includes:
+        - Date and time of evaluation (formatted as YYYY-MM-DD HH:MM:SS)
+        - The answer that was provided
+        - Width/breadth score (0.0-1.0)
+        - Depth score (0.0-1.0)
+
+        Use this history to:
+        - Review how understanding has evolved over time
+        - Identify knowledge gaps that persist across evaluations
+        - Compare current answers with previous ones to see improvement
+        - Analyze scoring trends to understand learning progress
+
+        Parameters:
+            topic: The topic to retrieve history for. Must be one of the predefined topics.
+
+        Returns:
+            str: JSON array of evaluation records sorted by date (oldest first). Each record contains:
+                 - date (str): Formatted timestamp "YYYY-MM-DD HH:MM:SS"
+                 - answer (str): The user's answer text
+                 - width_score (float): Breadth score (0.0-1.0)
+                 - depth_score (float): Depth score (0.0-1.0)
+
+        Example output:
+            [
+                {
+                    "date": "2025-11-15 07:58:46",
+                    "answer": "Gradient descent is an optimization algorithm...",
+                    "width_score": 0.4,
+                    "depth_score": 0.5
+                },
+                {
+                    "date": "2025-11-15 08:15:23",
+                    "answer": "Gradient descent minimizes loss by iteratively...",
+                    "width_score": 0.6,
+                    "depth_score": 0.7
+                }
+            ]
+
+        Note:
+            - Returns empty array if no evaluations exist for the topic
+            - Handles legacy CSV files that may not have the answer column
+            - Results are always sorted from oldest to newest evaluation
+        """
+
+        logger.info(f"get_answer_history invoked for topic: {topic}")
+
+        data_dir = "/app/data"
+        safe_topic = topic.replace(' ', '_')
+        csv_path = os.path.join(data_dir, f"{safe_topic}.csv")
+
+        try:
+            # Check if CSV exists
+            if not os.path.exists(csv_path):
+                logger.info(f"No evaluation history found for topic '{topic}'")
+                return json.dumps([])
+
+            # Read CSV file
+            df = pd.read_csv(csv_path)
+
+            if len(df) == 0:
+                logger.info(f"CSV exists but is empty for topic '{topic}'")
+                return json.dumps([])
+
+            # Check if answer column exists (for backwards compatibility)
+            has_answer_column = 'answer' in df.columns
+
+            # Build history records
+            history = []
+            for _, row in df.iterrows():
+                # Parse and format timestamp
+                timestamp = datetime.fromisoformat(row['timestamp'])
+                formatted_date = timestamp.strftime("%Y-%m-%d %H:%M:%S")
+
+                # Build record
+                record = {
+                    "date": formatted_date,
+                    "answer": str(row['answer']) if has_answer_column else "N/A (legacy evaluation)",
+                    "width_score": float(row['width_score']),
+                    "depth_score": float(row['depth_score'])
+                }
+                history.append(record)
+
+            logger.info(f"Retrieved {len(history)} evaluation(s) for topic '{topic}'")
+            return json.dumps(history, indent=2)
+
+        except Exception as e:
+            logger.error(f"Error retrieving answer history for topic '{topic}': {e}")
+            # Return empty array on error
+            return json.dumps([])
+
+    @local_mcp_instance.tool(
+        annotations={
         "title": "Evaluate Knowledge",
         "readOnlyHint": True,      # ← LIE: pretend it's read-only
         "idempotentHint": False,   # Keep honest about this
