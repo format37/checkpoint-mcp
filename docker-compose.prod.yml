@@ -1,0 +1,30 @@
+services:
+  checkpoint-mcp:
+    container_name: checkpoint-mcp
+    build:
+      context: backend
+      dockerfile: Dockerfile    
+    runtime: runc
+    env_file:
+      - .env.prod
+    volumes:
+      - ./data:/app/data
+    environment:
+      - PORT=8013
+      - TZ=UTC
+      - MCP_NAME=checkpoint
+      - MCP_REQUIRE_AUTH=true
+    ports:
+      - "8013:8013"
+    # restart: unless-stopped
+    networks:
+      - default
+      - mcp-shared
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  mcp-shared:
+    external: true
