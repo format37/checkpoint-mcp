@@ -28,7 +28,7 @@ I plan to talk with LLM in voice mode, maintaining the mock interview and then I
 # Installation
 To configure on remote server, need to configure the reverse-proxy.
 ```
-git clone
-cd
-./compose.local
+git clone https://github.com/format37/checkpoint-mcp.git
+cd checkpoint-mcp
+./compose.local.sh
 ```

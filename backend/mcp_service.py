@@ -11,7 +11,12 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
     
 def register_checkpoint_tools(local_mcp_instance):
-    @local_mcp_instance.tool()
+    @local_mcp_instance.tool(
+        annotations={
+            "readOnlyHint": True,
+            "idempotentHint": True
+        }
+    )
     @with_sentry_tracing("topics_list")
     def topics_list() -> str:
         """
@@ -37,7 +42,12 @@ def register_checkpoint_tools(local_mcp_instance):
             logger.error(f"Error reading topics.txt: {e}")
             return ""
 
-    @local_mcp_instance.tool()
+    @local_mcp_instance.tool(
+        annotations={
+            "readOnlyHint": False,
+            "destructiveHint": False
+        }
+    )
     @with_sentry_tracing("evaluate_knowledge")
     def evaluate_knowledge(
         topic: str,
