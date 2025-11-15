@@ -2,7 +2,7 @@ import logging
 import os
 import json
 from datetime import datetime
-from typing import Annotated
+from typing import Annotated, Literal
 import pandas as pd
 from pydantic import Field
 from sentry_utils import with_sentry_tracing
@@ -50,7 +50,15 @@ def register_checkpoint_tools(local_mcp_instance):
     )
     @with_sentry_tracing("evaluate_knowledge")
     def evaluate_knowledge(
-        topic: str,
+        topic: Literal[
+            "gradient descent", 
+            "overfitting", 
+            "hyperparameters", 
+            "logistical regression", 
+            "supervised learning", 
+            "unsupervised learning", 
+            "regularization"
+            ],
         answer: str,
         width_score: Annotated[float, Field(ge=0.0, le=1.0)],
         width_explanation: str,
