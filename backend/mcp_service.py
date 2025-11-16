@@ -18,7 +18,13 @@ TOPICS = (
     "logistical regression",
     "supervised learning",
     "unsupervised learning",
-    "regularization"
+    "regularization",
+    "dropout",
+    "early stopping",
+    "data augmentation",
+    "underfitting",
+    "loss function",
+    "bias variance"
 )
 
 def register_checkpoint_tools(local_mcp_instance):
