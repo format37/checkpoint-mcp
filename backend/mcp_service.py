@@ -6,26 +6,10 @@ from typing import Annotated, Literal
 import pandas as pd
 from pydantic import Field
 from sentry_utils import with_sentry_tracing
+from topics import TOPICS
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-# Centralized topics list - single source of truth for all topic-related functions
-TOPICS = (
-    "gradient descent",
-    "overfitting",
-    "hyperparameters",
-    "logistical regression",
-    "supervised learning",
-    "unsupervised learning",
-    "regularization",
-    "dropout",
-    "early stopping",
-    "data augmentation",
-    "underfitting",
-    "loss function",
-    "bias variance"
-)
 
 def register_checkpoint_tools(local_mcp_instance):
     @local_mcp_instance.tool(
