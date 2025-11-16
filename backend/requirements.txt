@@ -13,3 +13,10 @@ numpy>=1.24.0
 pyarrow>=10.0.0
 polygon-api-client==1.15.4
 python-dotenv>=1.0.0
+# Image processing
+Pillow>=10.0.0
+# Plotting and visualization
+matplotlib>=3.8.0
+plotly>=5.18.0
+seaborn>=0.13.0
+kaleido>=0.2.1
