@@ -4,7 +4,7 @@ TOPICS = (
     "gradient descent",
     "overfitting",
     "hyperparameters",
-    "logistical regression",
+    "logistic regression",
     "supervised learning",
     "unsupervised learning",
     "regularization",
